@@ -489,7 +489,7 @@ int upload_handler(struct mg_connection *conn, void *cbdata) {
     memset(&fdh, 0, sizeof(fdh));
     fdh.field_found = field_found_cb;
     fdh.field_get = field_get_cb;
-    fdh.field_stored = field_stored_cb;
+    fdh.field_store = field_stored_cb;
     fdh.user_data = &state;
 
     mg_handle_form_request(conn, &fdh);

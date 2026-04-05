@@ -2,6 +2,7 @@
 #include "db.h"
 #include "lib/cJSON.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void categories_seed(void) {

@@ -1,7 +1,9 @@
 #include "reports.h"
 #include "db.h"
+#include "audit.h"
 #include "lib/cJSON.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
