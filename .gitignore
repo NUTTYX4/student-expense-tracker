@@ -1,0 +1,23 @@
+# Compiled binary
+expense_tracker.exe
+expense_tracker
+
+# Database
+expenses.db
+expenses.db-wal
+expenses.db-shm
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~

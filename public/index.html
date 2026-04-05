@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Student Expense Tracker — Track your spending, manage budgets, and stay on top of your finances.">
+    <title>💰 Student Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar (Desktop) -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon">💰</span>
+            <span class="brand-text">ExpenseTracker</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="#dashboard" class="nav-link active" data-view="dashboard" id="nav-dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#add" class="nav-link" data-view="add" id="nav-add">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-label">Add Expense</span>
+                </a>
+            </li>
+            <li>
+                <a href="#analytics" class="nav-link" data-view="analytics" id="nav-analytics">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="#settings" class="nav-link" data-view="settings" id="nav-settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <button class="theme-toggle-sidebar" id="theme-toggle-sidebar" title="Toggle Dark/Light Mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+        <!-- ===== DASHBOARD VIEW ===== -->
+        <section class="view active" id="view-dashboard">
+            <header class="view-header">
+                <h1>Dashboard</h1>
+                <p class="view-subtitle" id="dashboard-month-label"></p>
+            </header>
+
+            <!-- Budget Alerts -->
+            <div id="budget-alerts"></div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards" id="summary-cards">
+                <div class="card summary-card total-card">
+                    <div class="card-icon">💸</div>
+                    <div class="card-info">
+                        <p class="card-label">Spent This Month</p>
+                        <h2 class="card-value" id="total-spent">₹0</h2>
+                    </div>
+                </div>
+                <div class="card summary-card budget-card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-info">
+                        <p class="card-label">Total Budget</p>
+                        <h2 class="card-value" id="total-budget">₹0</h2>
+                    </div>
+                </div>
+                <div class="card summary-card remaining-card">
+                    <div class="card-icon">💎</div>
+                    <div class="card-info">
+                        <p class="card-label">Remaining</p>
+                        <h2 class="card-value" id="total-remaining">₹0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="dashboard-grid">
+                <div class="card chart-card">
+                    <h3 class="card-title">Spending by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="dashboard-doughnut-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card recent-card">
+                    <h3 class="card-title">Recent Expenses</h3>
+                    <div id="recent-expenses-list" class="expense-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADD/EDIT EXPENSE VIEW ===== -->
+        <section class="view" id="view-add">
+            <header class="view-header">
+                <h1 id="add-view-title">Add Expense</h1>
+                <p class="view-subtitle">Record a new expense</p>
+            </header>
+
+            <div class="card form-card">
+                <form id="expense-form" autocomplete="off">
+                    <input type="hidden" id="expense-id" value="">
+
+                    <div class="form-group">
+                        <label for="expense-amount">Amount (₹)</label>
+                        <div class="input-wrapper amount-input">
+                            <span class="input-prefix">₹</span>
+                            <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-date">Date</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-note">Note</label>
+                        <input type="text" id="expense-note" placeholder="What was this for?" maxlength="200">
+                    </div>
+
+                    <div class="form-group toggle-group">
+                        <label for="expense-recurring">Recurring Expense</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="expense-recurring">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group frequency-group" id="frequency-group" style="display:none;">
+                        <label for="expense-frequency">Frequency</label>
+                        <select id="expense-frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receipt-upload">Receipt (optional)</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="receipt-upload" accept="image/*">
+                            <div class="file-upload-label" id="file-upload-label">
+                                <span>📎</span> Choose file or drag here
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-expense-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="save-expense-btn">
+                            <span class="btn-icon">💾</span> Save Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ===== ANALYTICS VIEW ===== -->
+        <section class="view" id="view-analytics">
+            <header class="view-header">
+                <h1>Analytics</h1>
+                <div class="month-selector">
+                    <button class="btn btn-icon-only" id="prev-month-btn" title="Previous month">◀</button>
+                    <span id="analytics-month-label"></span>
+                    <button class="btn btn-icon-only" id="next-month-btn" title="Next month">▶</button>
+                </div>
+            </header>
+
+            <!-- Top Categories -->
+            <div class="card" id="top-categories-card">
+                <h3 class="card-title">🏆 Top 3 Spending Categories</h3>
+                <div id="top-categories" class="top-categories">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="card chart-card">
+                    <h3 class="card-title">Daily Spending</h3>
+                    <div class="chart-container chart-container-wide">
+                        <canvas id="analytics-bar-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <h3 class="card-title">Category Breakdown</h3>
+                    <div class="chart-container">
+                        <canvas id="analytics-pie-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== BUDGET & SETTINGS VIEW ===== -->
+        <section class="view" id="view-settings">
+            <header class="view-header">
+                <h1>Budget & Settings</h1>
+                <p class="view-subtitle">Manage your budgets and preferences</p>
+            </header>
+
+            <!-- Theme Toggle -->
+            <div class="card settings-card">
+                <h3 class="card-title">🎨 Appearance</h3>
+                <div class="setting-row">
+                    <div>
+                        <p class="setting-label">Dark Mode</p>
+                        <p class="setting-desc">Switch between light and dark themes</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="theme-toggle-settings">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Budget Limits -->
+            <div class="card settings-card">
+                <h3 class="card-title">💰 Monthly Budget Limits</h3>
+                <div id="budget-inputs">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Export -->
+            <div class="card settings-card">
+                <h3 class="card-title">📥 Export Data</h3>
+                <p class="setting-desc" style="margin-bottom: 12px;">Download all your expenses as a CSV file</p>
+                <button class="btn btn-primary" id="export-csv-btn">
+                    <span class="btn-icon">📥</span> Download CSV
+                </button>
+            </div>
+
+            <!-- Audit Log -->
+            <div class="card settings-card">
+                <h3 class="card-title">📋 Activity Log</h3>
+                <div id="audit-log-list" class="audit-log-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Tab Bar (Mobile) -->
+    <nav class="bottom-bar" id="bottom-bar">
+        <a href="#dashboard" class="tab-link active" data-view="dashboard" id="tab-dashboard">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label">Home</span>
+        </a>
+        <a href="#add" class="tab-link" data-view="add" id="tab-add">
+            <span class="tab-icon">➕</span>
+            <span class="tab-label">Add</span>
+        </a>
+        <a href="#analytics" class="tab-link" data-view="analytics" id="tab-analytics">
+            <span class="tab-icon">📈</span>
+            <span class="tab-label">Analytics</span>
+        </a>
+        <a href="#settings" class="tab-link" data-view="settings" id="tab-settings">
+            <span class="tab-icon">⚙️</span>
+            <span class="tab-label">Settings</span>
+        </a>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
